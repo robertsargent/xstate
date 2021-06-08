@@ -1,5 +1,67 @@
 # xstate
 
+## 4.20.1
+
+### Patch Changes
+
+- [`99bc5fb9`](https://github.com/davidkpiano/xstate/commit/99bc5fb9d1d7be35f4c767dcbbf5287755b306d0) [#2275](https://github.com/davidkpiano/xstate/pull/2275) Thanks [@davidkpiano](https://github.com/davidkpiano)! - The `SpawnedActorRef` TypeScript interface has been deprecated in favor of a unified `ActorRef` interface, which contains the following:
+
+  ```ts
+  interface ActorRef<TEvent extends EventObject, TEmitted = any>
+    extends Subscribable<TEmitted> {
+    send: (event: TEvent) => void;
+    id: string;
+    subscribe(observer: Observer<T>): Subscription;
+    subscribe(
+      next: (value: T) => void,
+      error?: (error: any) => void,
+      complete?: () => void
+    ): Subscription;
+    getSnapshot: () => TEmitted | undefined;
+  }
+  ```
+
+  For simpler actor-ref-like objects, the `BaseActorRef<TEvent>` interface has been introduced.
+
+  ```ts
+  interface BaseActorRef<TEvent extends EventObject> {
+    send: (event: TEvent) => void;
+  }
+  ```
+
+* [`2de3ec3e`](https://github.com/davidkpiano/xstate/commit/2de3ec3e994e0deb5a142aeac15e1eddeb18d1e1) [#2272](https://github.com/davidkpiano/xstate/pull/2272) Thanks [@davidkpiano](https://github.com/davidkpiano)! - The `state.meta` value is now calculated directly from `state.configuration`. This is most useful when starting a service from a persisted state:
+
+  ```ts
+    const machine = createMachine({
+      id: 'test',
+      initial: 'first',
+      states: {
+        first: {
+          meta: {
+            name: 'first state'
+          }
+        },
+        second: {
+          meta: {
+            name: 'second state'
+          }
+        }
+      }
+    });
+
+    const service = interpret(machine);
+
+    service.start('second'); // `meta` will be computed
+
+    // the state will have
+    // meta: {
+    //   'test.second': {
+    //     name: 'second state'
+    //   }
+    // }
+  });
+  ```
+
 ## 4.20.0
 
 ### Minor Changes
